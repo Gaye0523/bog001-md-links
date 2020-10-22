@@ -2,7 +2,6 @@ module.exports = () => {
 
 };
 
-const parametroCli = './prueba.md';
 const path = require('path');
 const fs = require('fs');
 const md = require('markdown-it')();
@@ -50,7 +49,7 @@ const extracLink = (texto, archivo) => {
   return arrayLinks
 }
 
-const mdLinks = (archivo) => {
+const extraxLinksFromFile = (archivo) => {
   return readFile(archivo)
     .then((resultado) => {
       const readHtml = new Promise((resolve) => {
@@ -60,51 +59,67 @@ const mdLinks = (archivo) => {
       return (readHtml)
     })
 }
-mdLinks(parametroCli)
 
-
-  .then(res => {
-    console.log(res)
-  })
-  .catch(console.error);
-
-
-/* const validate = (archivo) => {
-  mdLinks(archivo)
-    .then((objetLink) => {
-      const newObjetLinks = objetLink.map((runObjet) => {
-        let link = runObjet.href;
-        //Crear un objeto nuevo con las mismas propiedad de runObjet, añadir dos propiedades que (status, statustxt )
-        const rutaAbsoluta = path.resolve(archivo);
-        const newObjet = {
-          href: runObjet.href,
-          text: runObjet.text,
-          file: rutaAbsoluta
-        }
-        const responseAxios = new Promise((resolve, reject) => {
-          axios.get(link)
-            .then(res => {
-              const statusLink = res.status;
-              if (statusLink == 200) {
-                newObjet.status = res.status;
-                newObject.statusText = 'Ok';
-                resolve(newObjet)
-              } else {
-                newObjet.status = response.status;
-                newObjet.statusText = 'Fail';
-              }
-            })
-            .catch((err) => {
-              newObjet.status = 404;
-              newObjet.statusText = 'Fail';
-              resolve(newObjet)
-            })
+const validateLink = (arrayObjetsLinks) => {
+  arrayObjetsLinks.map((runObjet) => {
+    let link = runObjet.href;
+    //Crear un objeto nuevo con las mismas propiedad de runObjet, añadir dos propiedades que (status, statustxt )
+    const newObjet = {
+      href: runObjet.href,
+      text: runObjet.text,
+      file: runObjet.file
+    }
+    const responseAxios = new Promise((resolve, reject) => {
+      axios.get(link)
+        .then(res => {
+          const statusLink = res.status;
+          if (statusLink == 200) {
+            newObjet.status = res.status;
+            newObjet.statusText = 'Ok';
+            console.log(newObjet)
+            resolve(newObjet)
+          } else {
+            newObjet.status = res.status;
+            newObjet.status = response.status;
+            newObjet.statusText = 'Fail';
+            console.log(newObjet)
+          }
         })
-        return (responseAxios)
-      })
+        .catch((err) => {
+          newObjet.status = 404;
+          newObjet.statusText = 'Fail';
+          console.log(newObjet)
+          resolve(newObjet)
+        })
     })
+    return (responseAxios)
+  })
 }
-validate(parametroCli) */
+
+const mdLinks = (ruta, options) => {
+
+  extraxLinksFromFile(ruta)
+    .then(res => {
+      if (options.validate == true) {
+        validateLink(res)
+      } else {
+        console.log(res)
+      }
+    })
+    .catch(console.error)
+}
+const optionsCli = {
+  validate: true
+}
+const rutaCli = './prueba.md';
+mdLinks(rutaCli, optionsCli)
+
+
+
+
+
+
+
 
 /*   .then(res => {
     console.log(res)
@@ -117,4 +132,5 @@ validate(parametroCli) */
 //newObject.status = ‘ok’
 //newObject.status = ‘fail’
 //Devuelva una promesa que resuelve un array de objetos con las nuevas propiedad
-
+//mdlinks devuela una promsea con una array de objetos
+//revisar que no sean variable globales
