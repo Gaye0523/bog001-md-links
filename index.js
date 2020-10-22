@@ -69,45 +69,55 @@ const validateLink = (arrayObjetsLinks) => {
       text: runObjet.text,
       file: runObjet.file
     }
-    const responseAxios = new Promise((resolve, reject) => {
+    const responseAxios = new Promise((resolve) => {
       axios.get(link)
         .then(res => {
           const statusLink = res.status;
           if (statusLink == 200) {
             newObjet.status = res.status;
             newObjet.statusText = 'Ok';
-            console.log(newObjet)
+            //console.log(newObjet)
             resolve(newObjet)
           } else {
             newObjet.status = res.status;
             newObjet.status = response.status;
             newObjet.statusText = 'Fail';
-            console.log(newObjet)
+            //console.log(newObjet)
           }
         })
         .catch((err) => {
           newObjet.status = 404;
           newObjet.statusText = 'Fail';
-          console.log(newObjet)
+          //console.log(newObjet)
           resolve(newObjet)
         })
     })
-    return (responseAxios)
+    return Promise.all([responseAxios]).then(values => {
+      console.log(values)
+    })
+      .catch((err) => {
+        console.log(err.message)
+      })
   })
 }
 
+
 const mdLinks = (ruta, options) => {
 
-  extraxLinksFromFile(ruta)
-    .then(res => {
-      if (options.validate == true) {
-        validateLink(res)
-      } else {
-        console.log(res)
-      }
-    })
-    .catch(console.error)
+  const arrayObjet = new Promise((resolve) => {
+    extraxLinksFromFile(ruta)
+      .then(res => {
+        if (options.validate == true) {
+          resolve(validateLink(res))
+        } else {
+          console.log(res)
+        }
+      })
+      .catch(console.error)
+  })
+  return arrayObjet
 }
+
 const optionsCli = {
   validate: true
 }
@@ -115,16 +125,6 @@ const rutaCli = './prueba.md';
 mdLinks(rutaCli, optionsCli)
 
 
-
-
-
-
-
-
-/*   .then(res => {
-    console.log(res)
-  })
-  .catch(console.error); */
 
 //que deber retornar en el callback
 //verificar con un expesion regular para que comience con la expesion https
