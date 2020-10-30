@@ -1,7 +1,3 @@
-module.exports = () => {
-
-};
-
 const path = require('path');
 const fs = require('fs');
 const md = require('markdown-it')();
@@ -27,6 +23,17 @@ function readFile(archivo) {
   return promesa
 }
 
+const extraxLinksFromFile = (archivo) => {
+  return readFile(archivo)
+    .then((resultado) => {
+      const readHtml = new Promise((resolve) => {
+        const resultLink = extracLink(resultado, archivo)
+        resolve(resultLink)
+      })
+      return (readHtml)
+    })
+}
+
 const extracLink = (texto, archivo) => {
   let seeHtml = md.render(texto);
   let dom = new JSDOM(seeHtml)
@@ -49,19 +56,9 @@ const extracLink = (texto, archivo) => {
   return arrayLinks
 }
 
-const extraxLinksFromFile = (archivo) => {
-  return readFile(archivo)
-    .then((resultado) => {
-      const readHtml = new Promise((resolve) => {
-        const resultLink = extracLink(resultado, archivo)
-        resolve(resultLink)
-      })
-      return (readHtml)
-    })
-}
 
 const validateLink = (arrayObjetsLinks) => {
-  arrayObjetsLinks.map((runObjet) => {
+  const validateArray = arrayObjetsLinks.map((runObjet) => {
     let link = runObjet.href;
     //Crear un objeto nuevo con las mismas propiedad de runObjet, añadir dos propiedades que (status, statustxt )
     const newObjet = {
@@ -69,62 +66,73 @@ const validateLink = (arrayObjetsLinks) => {
       text: runObjet.text,
       file: runObjet.file
     }
-    const responseAxios = new Promise((resolve) => {
-      axios.get(link)
-        .then(res => {
-          const statusLink = res.status;
-          if (statusLink == 200) {
-            newObjet.status = res.status;
-            newObjet.statusText = 'Ok';
-            //console.log(newObjet)
-            resolve(newObjet)
-          } else {
-            newObjet.status = res.status;
-            newObjet.status = response.status;
-            newObjet.statusText = 'Fail';
-            //console.log(newObjet)
-          }
-        })
-        .catch((err) => {
-          newObjet.status = 404;
+    return axios.get(link)
+      .then(res => {
+        const statusLink = res.status;
+        if (statusLink == 200) {
+          newObjet.status = res.status;
+          newObjet.statusText = 'Ok';
+          return newObjet
+        } else {
+          newObjet.status = res.status;
           newObjet.statusText = 'Fail';
-          //console.log(newObjet)
-          resolve(newObjet)
-        })
-    })
-    return Promise.all([responseAxios]).then(values => {
-      console.log(values)
-    })
-      .catch((err) => {
-        console.log(err.message)
+          return newObjet
+        }
       })
+      .catch((err) => {
+        newObjet.status = 404;
+        newObjet.statusText = 'Fail';
+        return newObjet
+      })
+  })
+  return Promise.all(validateArray).then(values => {
+    return values
   })
 }
 
-
 const mdLinks = (ruta, options) => {
-
   const arrayObjet = new Promise((resolve) => {
     extraxLinksFromFile(ruta)
       .then(res => {
-        if (options.validate == true) {
-          resolve(validateLink(res))
-        } else {
-          console.log(res)
-        }
+        resolve(res)
       })
       .catch(console.error)
   })
   return arrayObjet
 }
 
-const optionsCli = {
-  validate: true
+
+const stats = (newArrayObjets, showBroken) => { //hacer primero este que no es asincromo
+  const contOfLink = newArrayObjets.filter((element) => {
+    return element.statusText == 'Fail';
+  })
+  const totalLinks = newArrayObjets.length;
+  const totalBroken = contOfLink.length;
+  const totalUnique = [...new Set(newArrayObjets.map((oneLink) => oneLink.href))].length;
+  const statsLinks = {
+    total: totalLinks,
+    unique: totalUnique
+  };
+  if (showBroken) {
+    statsLinks.broken = totalBroken
+  }
+  return statsLinks
 }
-const rutaCli = './prueba.md';
-mdLinks(rutaCli, optionsCli)
+
+module.exports = {
+  mdLinks,
+  stats,
+  validateLink
+};
 
 
+
+
+
+/*   .then(res => {
+    console.log(res)
+  })
+  .catch(console.error); */
 
 //que deber retornar en el callback
 //verificar con un expesion regular para que comience con la expesion https
