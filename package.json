@@ -4,6 +4,7 @@
   "dependencies": {
     "axios": "^0.20.0",
     "jsdom": "^16.4.0",
+    "link": "^0.1.5",
     "markdown-it": "^11.0.1"
   },
   "description": "* [1. Preámbulo](#1-preámbulo)\r * [2. Resumen del proyecto](#2-resumen-del-proyecto)\r * [3. Objetivos de aprendizaje](#3-objetivos-de-aprendizaje)\r * [4. Consideraciones generales](#4-consideraciones-generales)\r * [5. Criterios de aceptación mínimos del proyecto](#5-criterios-de-aceptación-mínimos-del-proyecto)\r * [6. Entregables](#6-entregables)\r * [7. Hacker edition](#7-hacker-edition)\r * [8. Pistas, tips y lecturas complementarias](#8-pistas-tips-y-lecturas-complementarias)\r * [9. Checklist](#9-checklist)",
@@ -22,12 +23,16 @@
     "url": "git+https://github.com/Gaye0523/bog001-md-links.git"
   },
   "keywords": [
-    "jest",
-    "Prueba",
-    "Unitarias"
+    "nodejs",
+    "markdown",
+    "javascript",
+    "jest"
   ],
   "author": "Mayerly Bernal <maya_1819@hotmail.com>",
   "license": "MIT",
+  "bin": {
+    "mdLinks": "./Cli.js"
+  },
   "bugs": {
     "url": "https://github.com/Gaye0523/bog001-md-links/issues"
   },
